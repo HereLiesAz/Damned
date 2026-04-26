@@ -4,8 +4,11 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import { GoogleGenAI, Type } from "@google/genai";
 
 dotenv.config();
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,6 +65,94 @@ async function startServer() {
       }
     ];
   };
+
+  // --- AI Interactions API ---
+  app.post("/api/ai/target-intel", async (req, res) => {
+    try {
+      const { targetVal } = req.body;
+      const prompt = `Perform a deep offensive intelligence analysis on the following target: "${targetVal}".
+
+      Objectives:
+      1. Create a "Target Profile" (likely business role, technologies used, online presence).
+      2. Identify 3 "Personalized Attack Vectors" (phishing lures, specific exploits based on likely tech stack).
+      3. Suggest a "Recommended Payload" type.
+
+      Return the data in a clear, structured JSON format with keys: "profile", "vectors" (array of {title, description, platform}), and "recommendation".`;
+
+      const result = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              profile: { type: Type.STRING },
+              vectors: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    title: { type: Type.STRING },
+                    description: { type: Type.STRING },
+                    platform: { type: Type.STRING }
+                  },
+                  required: ["title", "description", "platform"]
+                }
+              },
+              recommendation: { type: Type.STRING }
+            },
+            required: ["profile", "vectors", "recommendation"]
+          }
+        }
+      });
+
+      const intel = JSON.parse(result.text || "{}");
+      res.json(intel);
+    } catch (err: any) {
+      console.error("[AI] Error generating target intel:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/ai/analyze-task", async (req, res) => {
+    try {
+      const { target, threat_type } = req.body;
+      const prompt = `Analyze this Cyber Threat Intelligence (CTI) entry from URLhaus.
+      URL: ${target}
+      Reported Threat: ${threat_type}
+
+      Tasks:
+      1. Explain what this threat likely is based on the reported type.
+      2. Identify potential business impact (Low, Medium, High).
+      3. Assign a numeric risk score (0-100).
+
+      Return as JSON with keys: "summary", "impact", "risk_score".`;
+
+      const result = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              summary: { type: Type.STRING },
+              impact: { type: Type.STRING },
+              risk_score: { type: Type.NUMBER }
+            },
+            required: ["summary", "impact", "risk_score"]
+          }
+        }
+      });
+
+      const analysis = JSON.parse(result.text || "{}");
+      res.json(analysis);
+    } catch (err: any) {
+      console.error("[AI] Error analyzing task:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
 
   // --- CTI Collection API ---
   app.get("/api/collect", async (req, res) => {
@@ -166,7 +257,10 @@ async function startServer() {
       if (type === 'Phishing') {
         if (platform === 'whatsapp') finalPayload = "SECURITY: Your WhatsApp account requires immediate verification. Click to secure: https://wa-verify.net/reset";
         else if (platform === 'facebook') finalPayload = "ATTENTION: We've detected an unauthorized login to your Facebook account. Review here: https://fb-security.com/alert";
-        else finalPayload = "ALERT: Cloud infrastructure breach detected. Authorize access here: https://sentinel-auth.net";
+        else {
+          const baseUrl = process.env.PHISHING_BASE_URL || 'https://damned-auth.net';
+          finalPayload = `ALERT: Cloud infrastructure breach detected. Authorize access here: ${baseUrl}`;
+        }
       } else if (type === 'Exploit') {
         finalPayload = `Payload delivery initiated. Module: ${newOp.technique}. Vector: ${platform}. CVE: ${config?.cve || 'N/A'}. Ldr: ${config?.payload_type || 'N/A'}.`;
       } else if (type === 'Exfiltration') {
@@ -270,7 +364,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Sentinel Infrastructure active on http://0.0.0.0:${PORT}`);
+    console.log(`Damned Infrastructure active on http://0.0.0.0:${PORT}`);
   });
 }
 

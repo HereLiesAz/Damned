@@ -1,20 +1,42 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Damned - Automated Intel Infrastructure
 
-# Run and deploy your AI Studio app
+Damned is a high-performance, automated infrastructure for cyber threat intelligence collection, analysis, and visualization. It provides both defensive and offensive modes for analyzing malicious payloads and simulating cyber campaigns.
 
-This contains everything you need to run your app locally.
+## Features
+- **Defensive Mode**: Automated intelligence pipeline, live ingestion, task queue, and threat analysis powered by AI.
+- **Offensive Mode**: Adversary emulation cycle, campaign execution, payload staging, and target intelligence gathering.
+- **Visuals**: A clean, high-contrast, minimalist UI built with React and Tailwind CSS.
+- **Backend Proxy**: Express-based CTI proxy server that collects real-time threat data from sources like URLhaus.
+- **AI Integration**: Leverages Google's Gemini AI to enrich threat intelligence and analyze target profiles.
 
-View your app in AI Studio: https://ai.studio/apps/f81ac2e0-0d25-4320-87f1-f6b674e55afd
+## Installation
 
-## Run Locally
+### Prerequisites
+- Node.js
+- An active Google Gemini API Key
 
-**Prerequisites:**  Node.js
+### Setup
+1. Clone the repository and navigate to the root directory.
+2. Install the dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up the environment variables:
+   - Copy `.env.example` to `.env`.
+   - Add your `GEMINI_API_KEY` to the `.env` file.
+   - Configure Twilio or Meta WhatsApp Business API settings if you intend to use the offensive messaging features.
+4. Run the application:
+   ```bash
+   npm run dev
+   ```
 
+## Documentation
+- [Operational Guide](docs/operational.md)
+- [Architectural Overview](docs/architectural.md)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Visual Style Guidelines
+When developing or modifying visuals, ensure adherence to the aesthetic guidelines specified in `AGENTS.md`:
+- Monochromatic, minimalist, high-contrast, dark theme.
+
+## Deployment
+This app supports deployment via GitHub Pages. Please refer to `.github/workflows/deploy.yml` for the CI/CD configuration.

@@ -5,7 +5,6 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo, ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { GoogleGenAI, Type } from "@google/genai";
 import { 
   Activity, 
   Database, 
@@ -31,9 +30,7 @@ import {
   X
 } from 'lucide-react';
 import { IntelTask, DATA_SOURCES, ANALYSIS_STEPS, DashboardMode, AttackCampaign, AttackOperation, ATTACK_STEPS } from './types.ts';
-
-// --- Gemini Initialization ---
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+import { BRANDING } from './constants.ts';
 
 // --- Sub-components ---
 
@@ -253,44 +250,13 @@ export default function App() {
     if (!targetVal || isAnalyzingTarget) return;
     setIsAnalyzingTarget(true);
     try {
-      const prompt = `Perform a deep offensive intelligence analysis on the following target: "${targetVal}".
-      
-      Objectives:
-      1. Create a "Target Profile" (likely business role, technologies used, online presence).
-      2. Identify 3 "Personalized Attack Vectors" (phishing lures, specific exploits based on likely tech stack).
-      3. Suggest a "Recommended Payload" type.
-      
-      Return the data in a clear, structured JSON format with keys: "profile", "vectors" (array of {title, description, platform}), and "recommendation".`;
-
-      const result = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              profile: { type: Type.STRING },
-              vectors: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    title: { type: Type.STRING },
-                    description: { type: Type.STRING },
-                    platform: { type: Type.STRING }
-                  },
-                  required: ["title", "description", "platform"]
-                }
-              },
-              recommendation: { type: Type.STRING }
-            },
-            required: ["profile", "vectors", "recommendation"]
-          }
-        }
+      const result = await fetch('/api/ai/target-intel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetVal })
       });
-
-      const intel = JSON.parse(result.text || "{}");
+      if (!result.ok) throw new Error("Failed to generate target intel");
+      const intel = await result.json();
       setTargetIntel(intel);
     } catch (err) {
       console.error("Target analysis failed:", err);
@@ -380,35 +346,14 @@ export default function App() {
       // Step 2: "Reasoning" phase (Gemini)
       setTasks(prev => prev.map(t => t.id === taskId ? { ...t, progress: 50 } : t));
       
-      const prompt = `Analyze this Cyber Threat Intelligence (CTI) entry from URLhaus. 
-      URL: ${task.target}
-      Reported Threat: ${task.threat_type}
-      
-      Tasks:
-      1. Explain what this threat likely is based on the reported type.
-      2. Identify potential business impact (Low, Medium, High).
-      3. Assign a numeric risk score (0-100).
-      
-      Return as JSON with keys: "summary", "impact", "risk_score".`;
-
-      const result = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              summary: { type: Type.STRING },
-              impact: { type: Type.STRING },
-              risk_score: { type: Type.NUMBER }
-            },
-            required: ["summary", "impact", "risk_score"]
-          }
-        }
+      const result = await fetch('/api/ai/analyze-task', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: task.target, threat_type: task.threat_type })
       });
 
-      const analysis = JSON.parse(result.text || "{}");
+      if (!result.ok) throw new Error("Failed to analyze task");
+      const analysis = await result.json();
 
       // Finalize
       setTasks(prev => prev.map(t => t.id === taskId ? { 
@@ -487,9 +432,9 @@ export default function App() {
               onClick={() => setMode(m => m === 'DEFENSIVE' ? 'OFFENSIVE' : 'DEFENSIVE')}
               className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold font-mono transition-all shadow-lg hover:scale-110 active:scale-95 ${mode === 'DEFENSIVE' ? 'bg-white text-black' : 'bg-zinc-800 text-white border border-white/20'}`}
             >
-              {mode === 'DEFENSIVE' ? 'ST' : 'SP'}
+              {mode === 'DEFENSIVE' ? BRANDING.defensive.abbr : BRANDING.offensive.abbr}
             </button>
-            <span className="text-[7px] font-bold uppercase tracking-[0.2em] text-zinc-500">{mode === 'DEFENSIVE' ? 'Sentinel' : 'Specter'}</span>
+            <span className="text-[7px] font-bold uppercase tracking-[0.2em] text-zinc-500">{mode === 'DEFENSIVE' ? BRANDING.defensive.name : BRANDING.offensive.name}</span>
           </div>
         }
         footer={
@@ -524,7 +469,7 @@ export default function App() {
               <h2 className="text-2xl font-bold uppercase tracking-[0.4em] text-white">System Guidance</h2>
               <div className="space-y-4 text-zinc-400 font-mono text-sm leading-relaxed">
                 <p>Welcome to the threshold. Every icon you click represents a choice. Every choosing is a loss of alternate futures.</p>
-                <p><span className="text-white">SENTINEL</span> is for the desperate defense of what remains. <span className="text-white">SPECTER</span> is for the clinical dismantling of those who think they are safe.</p>
+                <p><span className="text-white uppercase">{BRANDING.defensive.name}</span> {BRANDING.defensive.description} <span className="text-white uppercase">{BRANDING.offensive.name}</span> {BRANDING.offensive.description}</p>
                 <p className="border-t border-white/10 pt-4 text-[10px] uppercase italic">"In the end, all bits return to the void."</p>
               </div>
               <p className="text-[10px] text-zinc-600 uppercase tracking-widest animate-pulse">Click anywhere to return to the simulation</p>
@@ -618,7 +563,7 @@ export default function App() {
                 <div className="p-4 border-b border-surface-border flex justify-between items-center bg-slate-900/50">
                   <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
                     {mode === 'DEFENSIVE' ? <Terminal className="w-4 h-4 text-brand-primary" /> : <Activity className="w-4 h-4 text-attack-primary" />}
-                    {mode === 'DEFENSIVE' ? 'Active Thread Queue' : 'Live Operation Stream'}
+                    {mode === 'DEFENSIVE' ? 'Active Threat Queue' : 'Live Operation Stream'}
                   </h3>
                   <span className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">
                     {mode === 'DEFENSIVE' ? 'Live Ingestion' : 'Agent Heartbeat Active'}
@@ -714,7 +659,7 @@ export default function App() {
                       </div>
                     ) : (
                       <div className="h-full flex items-center justify-center text-slate-600 p-10 text-center">
-                        <p className="text-xs uppercase tracking-widest leading-loose">Select a thread from the queue to view AI-enriched intelligence</p>
+                        <p className="text-xs uppercase tracking-widest leading-loose">Select a threat from the queue to view AI-enriched intelligence</p>
                       </div>
                     )}
                   </div>
