@@ -8,7 +8,7 @@ Damned consists of a frontend dashboard built with React and Vite, supported by 
 - **React UI**: A single-page application focused on high performance and dark-themed visualization.
 - **State Management**: Utilizes React hooks (`useState`, `useEffect`) to manage real-time updates for tasks, operations, and staged payloads.
 - **Styling**: Tailwind CSS is used for rapid, utility-first styling, adhering strictly to the monochromatic, low-key lighting aesthetic.
-- **AI Integration**: The `@google/genai` SDK connects directly from the frontend to Google's Gemini models for on-the-fly threat enrichment and target profiling.
+- **AI Integration**: The frontend sends requests to the backend proxy, which uses the `@google/genai` SDK to connect to Google's Gemini models for on-the-fly threat enrichment and target profiling.
 - **Components**: Modular design including components for the task queue, pipeline visualizer, stat cards, and detailed analysis panels.
 
 ### Backend Proxy (`server.ts`)
@@ -20,7 +20,7 @@ Damned consists of a frontend dashboard built with React and Vite, supported by 
 ### Data Flow
 1. **Ingestion**: The backend proxy polls external CTI sources and formats the data into `IntelTask` objects.
 2. **Retrieval**: The frontend periodically requests the aggregated tasks from the backend.
-3. **Enrichment**: The frontend sends selected tasks to the Gemini API for natural language analysis and risk scoring.
+3. **Enrichment**: The frontend sends selected tasks to the backend proxy, which securely queries the Gemini API for natural language analysis and risk scoring.
 4. **Simulation**: User actions in Offensive Mode trigger API calls to the backend, which updates the state of simulated operations and returns the results to the UI.
 
 ### Type Definitions (`src/types.ts`)
