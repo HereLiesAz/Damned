@@ -166,7 +166,7 @@ async function startServer() {
       if (type === 'Phishing') {
         if (platform === 'whatsapp') finalPayload = "SECURITY: Your WhatsApp account requires immediate verification. Click to secure: https://wa-verify.net/reset";
         else if (platform === 'facebook') finalPayload = "ATTENTION: We've detected an unauthorized login to your Facebook account. Review here: https://fb-security.com/alert";
-        else finalPayload = "ALERT: Cloud infrastructure breach detected. Authorize access here: https://sentinel-auth.net";
+        else finalPayload = "ALERT: Cloud infrastructure breach detected. Authorize access here: https://damned-auth.net";
       } else if (type === 'Exploit') {
         finalPayload = `Payload delivery initiated. Module: ${newOp.technique}. Vector: ${platform}. CVE: ${config?.cve || 'N/A'}. Ldr: ${config?.payload_type || 'N/A'}.`;
       } else if (type === 'Exfiltration') {
@@ -270,7 +270,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Sentinel Infrastructure active on http://0.0.0.0:${PORT}`);
+    console.log(`Damned Infrastructure active on http://0.0.0.0:${PORT}`);
   });
 }
 
