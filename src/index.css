@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-brand-primary: #10b981; /* emerald-500 */
+  --color-brand-secondary: #fbbf24; /* amber-400 */
+  --color-brand-danger: #ef4444; /* red-500 */
+
+  --color-attack-primary: #f43f5e; /* rose-500 */
+  --color-attack-secondary: #f59e0b; /* amber-500 */
+  --color-attack-surface: #18181b; /* zinc-900 */
+  
+  --color-surface-base: #020617; /* slate-950 */
+  --color-surface-nav: #0f172a; /* slate-900 */
+  --color-surface-panel: #0f172a / 50%;
+  --color-surface-border: #1e293b; /* slate-800 */
+}
+
+@layer base {
+  body {
+    @apply bg-surface-base text-slate-200 font-sans antialiased;
+  }
+}
+
+.glass-panel {
+  @apply bg-surface-nav/50 border border-surface-border backdrop-blur-md rounded-xl;
+}
+
+.active-nav-item {
+  @apply bg-slate-800 text-white rounded-md;
+}
+
+.hover-nav-item {
+  @apply text-slate-400 hover:bg-slate-800/50 hover:text-white rounded-md transition-colors cursor-pointer;
+}
+
+.log-entry-info {
+  @apply border-l-2 border-brand-primary pl-3 py-1 bg-brand-primary/5;
+}
+
+.log-entry-warn {
+  @apply border-l-2 border-brand-secondary pl-3 py-1 bg-brand-secondary/5;
+}
+
