@@ -487,9 +487,9 @@ export default function App() {
               onClick={() => setMode(m => m === 'DEFENSIVE' ? 'OFFENSIVE' : 'DEFENSIVE')}
               className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold font-mono transition-all shadow-lg hover:scale-110 active:scale-95 ${mode === 'DEFENSIVE' ? 'bg-white text-black' : 'bg-zinc-800 text-white border border-white/20'}`}
             >
-              {mode === 'DEFENSIVE' ? 'ST' : 'SP'}
+              {mode === 'DEFENSIVE' ? 'DM' : 'SP'}
             </button>
-            <span className="text-[7px] font-bold uppercase tracking-[0.2em] text-zinc-500">{mode === 'DEFENSIVE' ? 'Sentinel' : 'Specter'}</span>
+            <span className="text-[7px] font-bold uppercase tracking-[0.2em] text-zinc-500">{mode === 'DEFENSIVE' ? 'Damned' : 'Specter'}</span>
           </div>
         }
         footer={
@@ -524,7 +524,7 @@ export default function App() {
               <h2 className="text-2xl font-bold uppercase tracking-[0.4em] text-white">System Guidance</h2>
               <div className="space-y-4 text-zinc-400 font-mono text-sm leading-relaxed">
                 <p>Welcome to the threshold. Every icon you click represents a choice. Every choosing is a loss of alternate futures.</p>
-                <p><span className="text-white">SENTINEL</span> is for the desperate defense of what remains. <span className="text-white">SPECTER</span> is for the clinical dismantling of those who think they are safe.</p>
+                <p><span className="text-white">DAMNED</span> is for the desperate defense of what remains. <span className="text-white">SPECTER</span> is for the clinical dismantling of those who think they are safe.</p>
                 <p className="border-t border-white/10 pt-4 text-[10px] uppercase italic">"In the end, all bits return to the void."</p>
               </div>
               <p className="text-[10px] text-zinc-600 uppercase tracking-widest animate-pulse">Click anywhere to return to the simulation</p>
