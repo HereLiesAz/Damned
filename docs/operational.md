@@ -6,7 +6,7 @@ This guide provides instructions on how to operate the Damned infrastructure, co
 ## Defensive Mode (Damned)
 In Defensive Mode, the system acts as an automated intelligence pipeline.
 
-### Active Thread Queue
+### Active Threat Queue
 The queue displays live ingestion of threat data from external sources (e.g., URLhaus).
 - **Processing**: Threats are automatically fetched and enqueued.
 - **Analysis**: The system uses Google Gemini AI to analyze the threat, determine its potential business impact, and assign a numeric risk score (0-100).
@@ -14,7 +14,7 @@ The queue displays live ingestion of threat data from external sources (e.g., UR
 
 ### Operations
 1. Use the **Refresh** button in the header to manually pull new intelligence feeds.
-2. Select a thread from the queue to view detailed AI-enriched analysis in the right panel.
+2. Select a threat from the queue to view detailed AI-enriched analysis in the right panel.
 
 ## Offensive Mode (Specter)
 In Offensive Mode, the system serves as a red-team simulation engine.
