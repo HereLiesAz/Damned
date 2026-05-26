@@ -110,8 +110,8 @@ async function startServer() {
       const intel = JSON.parse(result.text || "{}");
       res.json(intel);
     } catch (err: any) {
-      console.error("[AI] Error generating target intel:", err);
-      res.status(500).json({ error: err.message });
+      console.error('[AI] Error generating target intel:', err);
+      res.status(500).json({ error: 'Failed to generate target intelligence' });
     }
   });
 
