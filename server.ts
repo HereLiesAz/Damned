@@ -69,7 +69,7 @@ async function startServer() {
   // --- AI Interactions API ---
 
   const MAX_AI_INPUT_LENGTH = 2048;
-  const AI_INPUT_ALLOWED_CHARS = /^[\p{L}\p{N}\p{P}\p{Zs}]+$/u;
+  const AI_INPUT_ALLOWED_CHARS = /^[\p{L}\p{N}\p{P}\s]+$/u;
 
   function normalizeAiStringInput(raw: unknown): string {
     if (typeof raw !== "string") {
