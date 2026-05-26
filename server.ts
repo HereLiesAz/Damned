@@ -67,10 +67,53 @@ async function startServer() {
   };
 
   // --- AI Interactions API ---
+
+  const MAX_AI_INPUT_LENGTH = 2048;
+  const AI_INPUT_ALLOWED_CHARS = /^[\p{L}\p{N}\p{P}\s]+$/u;
+
+  function normalizeAiStringInput(raw: unknown): string {
+    if (typeof raw !== "string") {
+      throw new Error("Input must be a string");
+    }
+
+    const trimmed = raw.trim();
+
+    if (!trimmed) {
+      throw new Error("Input cannot be empty");
+    }
+
+    if (trimmed.length > MAX_AI_INPUT_LENGTH) {
+      throw new Error(`Input exceeds maximum length of ${MAX_AI_INPUT_LENGTH} characters`);
+    }
+
+    if (!AI_INPUT_ALLOWED_CHARS.test(trimmed)) {
+      throw new Error("Input contains unsupported characters");
+    }
+
+    return trimmed;
+  }
+
+  function validateTargetIntelPayload(body: any) {
+    const target = normalizeAiStringInput(body?.targetVal);
+    return { target };
+  }
+
+  function validateThreatAnalysisPayload(body: any) {
+    const target = normalizeAiStringInput(body?.target);
+    const threatType = normalizeAiStringInput(body?.threat_type);
+    return { target, threatType };
+  }
+
   app.post("/api/ai/target-intel", async (req, res) => {
+    let target;
     try {
-      const { targetVal } = req.body;
-      const prompt = `Perform a deep offensive intelligence analysis on the following target: "${targetVal}".
+      ({ target } = validateTargetIntelPayload(req.body));
+    } catch (err: any) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    try {
+      const prompt = `Perform a deep offensive intelligence analysis on the following target: "${target}".
 
       Objectives:
       1. Create a "Target Profile" (likely business role, technologies used, online presence).
@@ -116,11 +159,17 @@ async function startServer() {
   });
 
   app.post("/api/ai/analyze-task", async (req, res) => {
+    let target, threatType;
     try {
-      const { target, threat_type } = req.body;
+      ({ target, threatType } = validateThreatAnalysisPayload(req.body));
+    } catch (err: any) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    try {
       const prompt = `Analyze this Cyber Threat Intelligence (CTI) entry from URLhaus.
       URL: ${target}
-      Reported Threat: ${threat_type}
+      Reported Threat: ${threatType}
 
       Tasks:
       1. Explain what this threat likely is based on the reported type.
