@@ -259,7 +259,8 @@ export default function App() {
       const intel = await result.json();
       setTargetIntel(intel);
     } catch (err) {
-      console.error("Target analysis failed:", err);
+      console.error('Target analysis failed:', err);
+      alert('Failed to generate target intelligence. Please try again.');
     } finally {
       setIsAnalyzingTarget(false);
     }
