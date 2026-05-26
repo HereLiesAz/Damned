@@ -149,8 +149,8 @@ async function startServer() {
       const analysis = JSON.parse(result.text || "{}");
       res.json(analysis);
     } catch (err: any) {
-      console.error("[AI] Error analyzing task:", err);
-      res.status(500).json({ error: err.message });
+      console.error('[AI] Error analyzing task:', err);
+      res.status(500).json({ error: 'Failed to analyze task' });
     }
   });
 
